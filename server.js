@@ -14,13 +14,11 @@ app.use(express.static(__dirname + '/public'));
  ************/
 
 // our database is an array for now with some hardcoded values
-var todos = {
-  data: [
-    { _id: 7, task: 'Laundry', description: 'Wash clothes' },
-    { _id: 27, task: 'Grocery Shopping', description: 'Buy dinner for this week' },
-    { _id: 44, task: 'Homework', description: 'Make this app super awesome!' }
-  ]
-};
+var todos = [
+  { _id: 7, task: 'Laundry', description: 'Wash clothes' },
+  { _id: 27, task: 'Grocery Shopping', description: 'Buy dinner for this week' },
+  { _id: 44, task: 'Homework', description: 'Make this app super awesome!' }
+]
 
 /**********
  * ROUTES *
@@ -47,113 +45,128 @@ app.get('/', function homepage(req, res) {
 
 app.get('/api/todos/search', function search(req, res) {
   /* This endpoint responds with the search results from the
-   * query in the request. COMPLETE THIS ENDPOINT LAST.
-   */
+  query in the request. COMPLETE THIS ENDPOINT LAST. */
 
-  console.log(req.query);
+  var searchTodos = req.query.q;
+  console.log(searchTodos);
 
+  //callback for finding the items that match the query
+  function search(items) {
+    if ( items.task.toLowerCase().includes( searchTodos.toLowerCase() ) || items.description.toLowerCase().includes( searchTodos.toLowerCase() ) ) {
+      return true;
+    }
+  }
 
-  var q = req.query.q;
-  // if req is an ID number
-  var qInt = parseInt(req.query.q);
+  var todoResult = todos.filter(search);
+  console.log(todoResult);
 
-  var foundQuery = todos.data.filter(function (todo) {
-    return todo._id === q;
-  })[0];
-
-
-  res.send();
+  res.json({ data : todoResult });
 
 });
 
 app.get('/api/todos', function index(req, res) {
-  /* This endpoint responds with all of the todos
-   */
-  res.json(todos);
+  // This endpoint responds with all of the todos
+
+  res.json({ data: todos });
+
 });
 
 app.post('/api/todos', function create(req, res) {
   /* This endpoint will add a todo to our "database"
-   * and respond with the newly created todo.
-   */
+  and respond with the newly created todo. */
 
-   // create new todo with form data (`req.body`)
-   var newTodo = req.body;
+  // create new todo with form data (`req.body`)
+  var newTodo = req.body;
 
-   // set sequential id (last id in `todos` array + 1)
-   if (todos.data.length > 0) {
-     newTodo._id = todos.data[todos.data.length - 1]._id + 1;
-   } else {
-     newTodo._id = 1;
-   }
+  // set sequential id (last id in `todos` array + 1)
+  if (todos.length > 0) {
+   newTodo._id = todos[todos.length - 1]._id + 1;
+  } else {
+   newTodo._id = 1;
+  }
 
-   // add newTodo to `todos` array
-   todos.data.push(newTodo);
+  // add newTodo to `todos` array
+  todos.push(newTodo);
 
-   // send newTodo as JSON response
-   res.json(newTodo);
-
+  // send newTodo as JSON response
+  res.json(newTodo);
 
 });
 
 app.get('/api/todos/:id', function show(req, res) {
   /* This endpoint will return a single todo with the
-   * id specified in the route parameter (:id)
-   */
+  id specified in the route parameter (:id) */
 
-    // get todo id from url params (`req.params`)
-    var todoId = parseInt(req.params.id);
+  // get todo id from url param
+  var todoId = parseInt(req.params.id);
 
-    // find todo to by its id
-    var foundTodo = todos.data.filter(function (todo) {
-      return todo._id === todoId;
-    })[0];
+  //callback function that filters through the API
+  //if an id number matches, keep it
+  function isId(item) {
+    if (todoId === item._id) {
+      return true;
+    }
+  }
 
+  //filter out the id numbers that don't match the url param
+  var oneTodo = todos.filter(isId);
+  console.log(oneTodo[0]);
 
-   // send foundTodo as JSON response
-   res.json(foundTodo);
+  //response data sent back
+  res.json(oneTodo[0]);
 
 });
 
 app.put('/api/todos/:id', function update(req, res) {
   /* This endpoint will update a single todo with the
-   * id specified in the route parameter (:id) and respond
-   * with the newly updated todo.
-   */
+  id specified in the route parameter (:id) and respond
+  with the newly updated todo. */
 
-    // get todo id from url params (`req.params`)
-    var todoId = parseInt(req.params.id);
+  // get todo id from url param
+  var todoId = parseInt(req.params.id);
 
-    // find todo to update by its id
-    var todoUpdate = todos.data.filter(function (todo) {
-      return todo._id === todoId;
-    })[0];
+  //callback function that filters through the API
+  //if an id number matches, keep it
+  function isId(item) {
+    if (todoId === item._id) {
+      return true;
+    }
+  }
 
-    // update the todo's task
-    todoUpdate.task = req.body.task;
+  //filter out the id numbers that don't match the url param
+  var toDoUpdate = todos.filter(isId);
+  console.log(toDoUpdate[0]);
 
-    // update the todo's description
-    todoUpdate.description = req.body.description;
+  //update task and descriptions
+  toDoUpdate[0].task = req.body.task;
+  console.log(toDoUpdate[0].task);
+  toDoUpdate[0].description = req.body.description;
+  console.log(toDoUpdate[0].description);
 
-    res.json(todoUpdate);
+  //response data sent back
+  res.json(toDoUpdate[0]);
+
 });
 
 app.delete('/api/todos/:id', function destroy(req, res) {
   /* This endpoint will delete a single todo with the
-   * id specified in the route parameter (:id) and respond
-   * with success.
-   */
+  id specified in the route parameter (:id) and respond
+  with success. */
 
   // get todo id from url params (`req.params`)
   var todoId = parseInt(req.params.id);
 
+  function isId(item) {
+    if (todoId === item._id) {
+      return true;
+    }
+  }
+
   // find todo to delete by its id
-  var todoDelete = todos.data.filter(function (todo) {
-      return todo._id === todoId;
-  })[0];
+  var todoDelete = todos.filter(isId)[0];
 
   // remove todo from `todos` array
-  todos.data.splice(todos.data.indexOf(todoDelete), 1);
+  todos.splice(todos.indexOf(todoDelete), 1);
 
   // send back deleted todo
   res.json(todoDelete);

@@ -2,20 +2,20 @@
 $(document).ready(function() {
 
   // base API route
-  var baseUrl = 'http://localhost:3000/api/todos';
+  const baseUrl = '/api/todos';
 
   // array to hold todo data from API
-  var allTodos = [];
+  let allTodos = [];
 
   // element to display list of todos
-  var $todosList = $('#todos-list');
+  const $todosList = $('#todos-list');
 
   // form to create new todo
-  var $createTodo = $('#create-todo');
+  const $createTodo = $('#create-todo');
 
   // compile handlebars template
-  var source = $('#todos-template').html();
-  var template = Handlebars.compile(source);
+  const source = $('#todos-template').html();
+  const template = Handlebars.compile(source);
 
   // helper function to render all todos to view
   // note: we empty and re-render the collection each time our todo data changes
@@ -24,7 +24,7 @@ $(document).ready(function() {
     $todosList.empty();
 
     // pass `allTodos` into the template function
-    var todosHtml = template({ todos: allTodos });
+    const todosHtml = template({ todos: allTodos });
 
     // append html to the view
     $todosList.append(todosHtml);
@@ -37,7 +37,7 @@ $(document).ready(function() {
     success: function onIndexSuccess(json) {
       console.log(json);
 
-      // set `allTodos` to todo data (json.data) from API
+      // assign `allTodos` array the data (json.data) from API
       allTodos = json.reverse();
 
       // render all todos to view
@@ -50,7 +50,7 @@ $(document).ready(function() {
     event.preventDefault();
 
     // serialze form data
-    var newTodo = $(this).serialize();
+    const newTodo = $(this).serialize();
 
     // POST request to create new todo
     $.ajax({
@@ -69,6 +69,7 @@ $(document).ready(function() {
     // reset the form
     $createTodo[0].reset();
     $createTodo.find('input').first().focus();
+    
   });
 
   // add event-handlers to todos for updating/deleting
@@ -79,15 +80,15 @@ $(document).ready(function() {
       event.preventDefault();
 
       // find the todo's id (stored in HTML as `data-id`)
-      var todoId = $(this).closest('.todo').attr('data-id');
+      const todoId = $(this).closest('.todo').attr('data-id');
 
       // find the todo to update by its id
-      var todoUpdate = allTodos.find(function (todo) {
+      const todoUpdate = allTodos.find( todo => {
         return todo._id == todoId;
       });
 
       // serialze form data
-      var updatedTodo = $(this).serialize();
+      const updatedTodo = $(this).serialize();
 
       // PUT request to update todo
       $.ajax({
@@ -109,10 +110,10 @@ $(document).ready(function() {
       console.log('delete clicked!');
 
       // find the todo's id (stored in HTML as `data-id`)
-      var todoId = $(this).closest('.todo').attr('data-id');
+      const todoId = $(this).closest('.todo').attr('data-id');
 
       // find the todo to delete by its id
-      var todoToDelete = allTodos.find(function (todo) {
+      const todoToDelete = allTodos.find( todo => {
         if (todo._id == todoId) {
           return todo;
         };

@@ -2,7 +2,7 @@
 $(document).ready(function() {
 
   // base API route
-  var baseUrl = '/api/todos';
+  var baseUrl = 'http://localhost:3000/api/todos';
 
   // array to hold todo data from API
   var allTodos = [];
@@ -38,7 +38,7 @@ $(document).ready(function() {
       console.log(json);
 
       // set `allTodos` to todo data (json.data) from API
-      allTodos = json.todos;
+      allTodos = json.reverse();
 
       // render all todos to view
       render();
@@ -61,8 +61,8 @@ $(document).ready(function() {
         console.log(json);
 
         // add new todo to `allTodos`
-        allTodos.push(json);
-
+        allTodos.unshift(json);
+        
         // render all todos to view
         render();
       }
@@ -84,7 +84,7 @@ $(document).ready(function() {
       var todoId = $(this).closest('.todo').attr('data-id');
 
       // find the todo to update by its id
-      var todoToUpdate = allTodos.find(function (todo) {
+      var todoUpdate = allTodos.find(function (todo) {
         return todo._id == todoId;
       });
 
@@ -99,23 +99,26 @@ $(document).ready(function() {
         success: function onUpdateSuccess(json) {
           // replace todo to update with newly updated version (json)
           allTodos.splice(allTodos.indexOf(todoToUpdate), 1, json);
-
-          // render all todos to view
-          render();
         }
       });
+
+      // render all todos to view
+      render();
     })
 
     // for delete: click event on `.delete-todo` button
     .on('click', '.delete-todo', function (event) {
       event.preventDefault();
+      console.log('delete clicked!');
 
       // find the todo's id (stored in HTML as `data-id`)
       var todoId = $(this).closest('.todo').attr('data-id');
 
       // find the todo to delete by its id
       var todoToDelete = allTodos.find(function (todo) {
-        return todo._id == todoId;
+        if (todo._id == todoId) {
+          return todo;
+        };
       });
 
       // DELETE request to delete todo
@@ -125,6 +128,8 @@ $(document).ready(function() {
         success: function onDeleteSuccess(json) {
           // remove deleted todo from all todos
           allTodos.splice(allTodos.indexOf(todoToDelete), 1);
+
+          console.log('deleted!');
 
           // render all todos to view
           render();

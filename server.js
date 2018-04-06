@@ -2,6 +2,7 @@
 var express = require('express'),
     app = express(),
     bodyParser = require('body-parser');
+    db = require('./models');
 
 // configure bodyParser (for receiving form data)
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -9,16 +10,16 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // serve static files from public folder
 app.use(express.static(__dirname + '/public'));
 
-/************
- * DATABASE *
- ************/
+// /************
+//  * DATABASE *
+//  ************/
 
-// our database is an array for now with some hardcoded values
-var todos = [
-  { _id: 7, task: 'Laundry', description: 'Wash clothes' },
-  { _id: 27, task: 'Grocery Shopping', description: 'Buy dinner for this week' },
-  { _id: 44, task: 'Homework', description: 'Make this app super awesome!' }
-]
+// // our database is an array for now with some hardcoded values
+// var todos = [
+//   { _id: 7, task: 'Laundry', description: 'Wash clothes' },
+//   { _id: 27, task: 'Grocery Shopping', description: 'Buy dinner for this week' },
+//   { _id: 44, task: 'Homework', description: 'Make this app super awesome!' }
+// ]
 
 /**********
  * ROUTES *
@@ -66,8 +67,9 @@ app.get('/api/todos/search', function search(req, res) {
 
 app.get('/api/todos', function index(req, res) {
   // This endpoint responds with all of the todos
-
-  res.json({ data: todos });
+  db.Todo.find({}, function(err, results){
+    res.json(results);
+  })
 
 });
 
@@ -78,18 +80,11 @@ app.post('/api/todos', function create(req, res) {
   // create new todo with form data (`req.body`)
   var newTodo = req.body;
 
-  // set sequential id (last id in `todos` array + 1)
-  if (todos.length > 0) {
-   newTodo._id = todos[todos.length - 1]._id + 1;
-  } else {
-   newTodo._id = 1;
-  }
-
-  // add newTodo to `todos` array
-  todos.push(newTodo);
-
-  // send newTodo as JSON response
-  res.json(newTodo);
+  let todo = new db.Todo(newTodo);
+  todo.save(function(err, savedTodo){
+    console.log(err);
+    res.json(savedTodo);
+  });
 
 });
 
@@ -98,22 +93,12 @@ app.get('/api/todos/:id', function show(req, res) {
   id specified in the route parameter (:id) */
 
   // get todo id from url param
-  var todoId = parseInt(req.params.id);
+  var todoId = req.params.id;
 
-  //callback function that filters through the API
-  //if an id number matches, keep it
-  function isId(item) {
-    if (todoId === item._id) {
-      return true;
-    }
-  }
-
-  //filter out the id numbers that don't match the url param
-  var oneTodo = todos.filter(isId);
-  console.log(oneTodo[0]);
-
-  //response data sent back
-  res.json(oneTodo[0]);
+  db.Todo.findById(todoId, function(err, foundTodo){
+    console.log(err);
+    res.json(foundTodo);
+  })
 
 });
 
@@ -153,23 +138,14 @@ app.delete('/api/todos/:id', function destroy(req, res) {
   id specified in the route parameter (:id) and respond
   with success. */
 
-  // get todo id from url params (`req.params`)
-  var todoId = parseInt(req.params.id);
+  // get todo id from url param
+  var todoId = req.params.id;
 
-  function isId(item) {
-    if (todoId === item._id) {
-      return true;
-    }
-  }
-
-  // find todo to delete by its id
-  var todoDelete = todos.filter(isId)[0];
-
-  // remove todo from `todos` array
-  todos.splice(todos.indexOf(todoDelete), 1);
-
-  // send back deleted todo
-  res.json(todoDelete);
+  db.Todo.findOneAndRemove({
+    _id: todoId
+  }).then(todo => {
+    res.json(todo);
+  });
 
 });
 
@@ -178,6 +154,6 @@ app.delete('/api/todos/:id', function destroy(req, res) {
  **********/
 
 // listen on port 3000
-app.listen(3000, function() {
+app.listen(process.env.PORT || 3000, function() {
   console.log('Server running on http://localhost:3000');
 });

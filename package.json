@@ -17,12 +17,14 @@
   },
   "homepage": "https://github.com/sf-wdi-labs/test-driven-todo-api",
   "dependencies": {
-    "body-parser": "^1.14.1",
+    "body-parser": "^1.18.2",
     "chai": "^3.4.0",
-    "express": "^4.13.3",
+    "express": "^4.16.3",
     "mocha": "^2.3.3",
-    "q": "^1.4.1",
-    "request": "^2.65.0",
+    "mongoose": "^4.13.12",
+    "npm": "^5.8.0",
+    "q": "^1.5.1",
+    "request": "^2.85.0",
     "underscore": "^1.8.3"
   }
 }

@@ -58,8 +58,6 @@ $(document).ready(function() {
       url: baseUrl,
       data: newTodo,
       success: function onCreateSuccess(json) {
-        console.log(json);
-
         // add new todo to `allTodos`
         allTodos.unshift(json);
         
@@ -98,12 +96,11 @@ $(document).ready(function() {
         data: updatedTodo,
         success: function onUpdateSuccess(json) {
           // replace todo to update with newly updated version (json)
-          allTodos.splice(allTodos.indexOf(todoToUpdate), 1, json);
+          allTodos.splice(allTodos.indexOf(todoUpdate), 1, json);
+          
+          render();
         }
       });
-
-      // render all todos to view
-      render();
     })
 
     // for delete: click event on `.delete-todo` button

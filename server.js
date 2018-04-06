@@ -108,28 +108,12 @@ app.put('/api/todos/:id', function update(req, res) {
   with the newly updated todo. */
 
   // get todo id from url param
-  var todoId = parseInt(req.params.id);
+  var todoId = req.params.id;
 
-  //callback function that filters through the API
-  //if an id number matches, keep it
-  function isId(item) {
-    if (todoId === item._id) {
-      return true;
-    }
-  }
-
-  //filter out the id numbers that don't match the url param
-  var toDoUpdate = todos.filter(isId);
-  console.log(toDoUpdate[0]);
-
-  //update task and descriptions
-  toDoUpdate[0].task = req.body.task;
-  console.log(toDoUpdate[0].task);
-  toDoUpdate[0].description = req.body.description;
-  console.log(toDoUpdate[0].description);
-
-  //response data sent back
-  res.json(toDoUpdate[0]);
+  db.Todo.findOneAndUpdate({ _id: todoId }, { $set: { task: req.body.task, description: req.body.description } }, { new: true }, function (err, todo) {
+    console.log(err);
+    res.json(todo);
+  });
 
 });
 
